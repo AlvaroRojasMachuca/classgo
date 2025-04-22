@@ -1,4 +1,3 @@
-
 storage/*.key
 storage/logs/
 .env
@@ -24,3 +23,5 @@ storage/app/google/credentials.json
 /storage/app/google/
 /vendor/
 /node_modules/
+*.mp4 
+/reemplazos.txt
