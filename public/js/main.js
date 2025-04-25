@@ -40,6 +40,7 @@
             select2Element.off('change');
 
             setTimeout(() => {
+                
                 select2Element.each((index, item) => {
                     let _this = jQuery(item);
                     let searchable = _this.data('searchable');
@@ -55,7 +56,9 @@
                         data: event.data || [],
                         width: '100%' // Asegurar que tome el ancho completo
                     };
-
+                    
+                   
+                    
                     if (_this.data('hide_search_opt')) {
                         params['minimumResultsForSearch'] = -1;
                     }
@@ -70,7 +73,7 @@
 
                     // Inicializar select2 con los nuevos datos
                     _this.select2(params);
-
+                    
                     // Establecer el valor después de la inicialización
                     if (event.value) {
                         _this.val(event.value).trigger('change');
@@ -111,6 +114,7 @@
         jQuery('.am-header_user_menu > ul').slideToggle();
     });
 })(jQuery);
+
 
 let popupParams;
 

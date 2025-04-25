@@ -20,7 +20,7 @@
                                         <x-frontend.verified-tooltip />
                                         @endif
                                         @if ($singleTutor->address && $singleTutor->address->country && $singleTutor->address->country->short_code)
-                                            <span class="flag flag-{{ strtolower($singleTutor->address->country->short_code) }}"></span>
+                                            {{-- <span class="flag flag-{{ strtolower($singleTutor->address->country->short_code) }}"></span> --}}
                                         @endif
                                     </h3>
                                     <span>

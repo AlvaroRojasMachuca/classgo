@@ -171,36 +171,36 @@
                     <ul class="am-socialmedia">
                         @if ( !empty( setting('_general.fb_link')))
                             <li>
-                                <a href="{{ setting('_general.fb_link') }}">
-                                    <i class="am-icon-facebook"></i>
+                                <a href="https://www.facebook.com/profile.php?id=61567352882531&amp;amp;mibextid=ZbWKwL">
+                                    <img src="{{ asset('images/facebook.png') }}" alt="Facebook" style="width: 50px; height: 50px;">
                                 </a>
                             </li>
                         @endif
                         @if ( !empty( setting('_general.insta_link')))
                             <li>
-                                <a href="{{ setting('_general.insta_link') }}">
-                                    <i class="am-icon-instagram"></i>
+                                <a href="https://www.instagram.com/classgo_app?igsh=cDl4cG5yN2JldXg0">
+                                    <img src="{{ asset('images/instagram.png') }}" alt="Instagram" style="width: 50px; height: 50px;">
                                 </a>
                             </li>
                         @endif
                         @if ( !empty( setting('_general.linkedin_link')))
                             <li>
-                                <a href="{{ setting('_general.linkedin_link') }}">
-                                    <i class="am-icon-linkedin"></i>
+                                <a href="https://www.linkedin.com/company/classgoapp/about/?viewAsMember=true">
+                                    <img src="{{ asset('images/linkedin.png') }}" alt="Instagram" style="width: 50px; height: 50px;">
                                 </a>
                             </li>
                         @endif
                         @if ( !empty( setting('_general.yt_link')))
                             <li>
-                                <a href="{{ setting('_general.yt_link') }}">
-                                    <i class="am-icon-youtube"></i>
+                                <a href="http://www.youtube.com/@ClassGo-z4d">
+                                    <img src="{{ asset('images/youtube.png') }}" alt="Instagram" style="width: 50px; height: 50px;">
                                 </a>
                             </li>
                         @endif
                         @if ( !empty( setting('_general.tiktok_link')))
                             <li>
-                                <a href="{{ setting('_general.tiktok_link') }}">
-                                    <i class="am-icon-tiktok"></i>
+                                <a href="https://www.tiktok.com/@classgoapp?is_from_webapp=1&amp;amp;sender_device=pc">
+                                    <img src="{{ asset('images/tik-tok.png') }}" alt="Instagram" style="width: 50px; height: 50px;">
                                 </a>
                             </li>
                         @endif
