@@ -280,14 +280,14 @@
                                     </span>
                                     <x-input-error field_name="form.subject_id" />
                                 </div>
-                                <div @class(['form-group', 'am-invalid' => $errors->has('form.hour_rate')])>
+                                {{-- <div @class(['form-group', 'am-invalid' => $errors->has('form.hour_rate')])>
                                     <label class="am-label am-important2">{{ __('subject.session_price') }}</label>
                                     <div class="am-inputfield">
                                         <x-text-input wire:model="form.hour_rate" type="number" value="15" readonly />
                                         <span class="am-inputfield_icon">Bs</span>
                                     </div>
                                     <x-input-error field_name="form.hour_rate" />
-                                </div>
+                                </div> --}}
                                 
                                 <div @class(['form-group', 'am-invalid' => $errors->has('form.description')])>
                                     <x-input-label class="am-important2" for="introduction" :value="__('subject.breif_introduction')" />
