@@ -93,8 +93,12 @@
                                             </strong>
                                         </td>
                                         <td data-label="{{ __('identity.status' )}}">
-                                            <div class="am-status-tag">
-                                                <em class="tk-project-tag {{ $single?->profile?->recommend_tutor == 'accepted' ? 'tk-hourly-tag' : 'tk-fixed-tag' }}">{{ $single?->status }}</em>
+                                            <div class="am-status-indicator" wire:click="toggleStatus({{ $single->user_id }}, '{{ $single->status == 'accepted' ? 'rejected' : 'accepted' }}')" style="cursor: pointer;">
+                                                @if($single->status == 'accepted')
+                                                    <span class="badge bg-success">{{ __('general.verified') }}</span>
+                                                @else
+                                                    <span class="badge bg-warning">{{ __('general.pending') }}</span>
+                                                @endif
                                             </div>
                                         </td>
                                         <td  data-label="{{__('identity.action')}}">

@@ -314,15 +314,15 @@ class StudentSeeder extends Seeder
     public function seedAddress($student, $addressData)
     {
         if (!empty($addressData)) {
-            $student->address()->create([
-                'country_id'   => $addressData['country_id'] ?? null,
+            $data = [
+                'country_id'   => $addressData['country_id'] ?? 1,
                 'state_id'     => $addressData['state_id'] ?? null,
                 'city'         => $addressData['city'] ?? '',
                 'address'      => $addressData['address'] ?? '',
-                'zipcode'      => $addressData['zipcode'] ?? '',
                 'lat'          => $addressData['lat'] ?? 0,
-                'long'         => $addressData['long'] ?? 0
-            ]);
+                'long'         => $addressData['long'] ?? 0,
+            ];
+            $student->address()->create($data);
         }
     }
 }

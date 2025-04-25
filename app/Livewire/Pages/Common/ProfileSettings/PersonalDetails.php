@@ -13,13 +13,15 @@ use Illuminate\Support\Facades\Session;
 use Livewire\Attributes\Layout;
 use Livewire\Component;
 use Livewire\WithFileUploads;
-
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class PersonalDetails extends Component
 {
     use WithFileUploads;
 
     public PersonalDetailsForm $form;
+    public $search = '';
 
     public $allowImgFileExt = [];
     public $allowVideoFileExt = [];
@@ -44,10 +46,24 @@ class PersonalDetails extends Component
     public $activeRoute = false;
 
     #[Layout('layouts.app')]
-    public function render()
+    public function render(Request $request)
     {
         $enableGooglePlaces = setting('_api.enable_google_places') ?? '0';
         $states = null;
+
+        // Si es una solicitud AJAX de Select2, devolver los resultados filtrados
+        if ($request->ajax() && $request->has('search')) {
+            $countries = Country::where('name', 'like', '%' . $request->search . '%')
+                ->get()
+                ->map(function($country) {
+                    return [
+                        'id' => $country->id,
+                        'text' => $country->name
+                    ];
+                });
+            return response()->json($countries);
+        }
+
         if (!empty($this->form->country)) {
             $states = $this->profileService->countryStates($this->form->country);
             if ($states->isNotEmpty()) {
@@ -57,7 +73,25 @@ class PersonalDetails extends Component
                 $this->hasStates = false;
             }
         }
+
+        // Cargar países iniciales si no es una búsqueda
+        if (!$this->countries) {
+            $this->countries = Country::orderBy('name')->get();
+        }
+
         return view('livewire.pages.common.profile-settings.personal-details', compact('enableGooglePlaces', 'states'));
+    }
+
+    public function searchCountries($term = '')
+    {
+        
+        $countries = Country::where('name', 'like', '%' . $term . '%')
+            ->select('id', 'name as text') // Seleccionar y renombrar para Select2
+            ->take(20) // Limitar resultados para eficiencia
+            ->get()
+            ->toArray();
+        
+        return $countries;
     }
 
     public function boot()
@@ -68,6 +102,7 @@ class PersonalDetails extends Component
     public function loadData()
     {
         $this->isLoading            = false;
+        \Log::info('Dispatching loadPageJs event from loadData()');
         $this->dispatch('loadPageJs');
     }
 
@@ -170,5 +205,13 @@ class PersonalDetails extends Component
         } else {
             $this->form->removePhoto();
         }
+    }
+
+    public function updatedFormCountry($value)
+    {
+        $this->form->state = null; // Resetear el estado seleccionado
+        // La propiedad $hasStates se recalculará automáticamente en el siguiente render
+        // que Livewire dispara después de esta actualización.
+        Log::info('Country changed, state reset. Country ID: ' . $value);
     }
 }

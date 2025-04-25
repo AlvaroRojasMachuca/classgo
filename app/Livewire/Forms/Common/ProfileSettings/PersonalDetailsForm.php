@@ -19,7 +19,6 @@ class PersonalDetailsForm extends Form
     public $long                = '';
     public string $country      = '';
     public string $city         = '';
-    public string $zipcode      = '';
     public $state               = null;
     public string $address      = '';
     public $user_languages      = [];
@@ -137,7 +136,6 @@ class PersonalDetailsForm extends Form
             'state_id'      => !empty($this->state) ? $this->state : null,
             'city'          => sanitizeTextField($this->city)  ?? null,
             'address'       => sanitizeTextField($this->address) ?? null,
-            'zipcode'       => sanitizeTextField($this->zipcode) ?? null,
         ];
 
         if (!empty($this->lat)) {
@@ -178,7 +176,6 @@ class PersonalDetailsForm extends Form
     {
         $this->country  = $address?->country_id ?? '';
         $this->city     = $address?->city ?? '';
-        $this->zipcode  = $address?->zipcode ?? '';
         $this->state    = $address?->state_id ?? '';
         $this->address  = $address?->address ?? '';
         $this->lat      = $address?->lat ?? '';

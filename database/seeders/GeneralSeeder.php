@@ -12,24 +12,25 @@ use Illuminate\Support\Facades\Storage;
 
 class GeneralSeeder extends Seeder
 {
-
-    /**
-     * Run the database seeds.
-     *
-     * @return void
-     */
     public function run()
     {
-
-        $admin = User::firstOrCreate(['email' => 'admin@amentotech.com'], [
-            'email' => 'admin@amentotech.com',
-            'password' => Hash::make('google'),
+        // Crear usuario administrador
+        $admin = User::firstOrCreate(['email' => 'admin@classgo.com'], [
+            'email' => 'admin@classgo.com',
+            'password' => Hash::make('admin123'),
             'email_verified_at' => now()
         ]);
-        $admin->profile()->create(['first_name' => 'Admin', 'last_name' => 'User', 'slug' => 'admin']);
+        
+        $admin->profile()->create([
+            'first_name' => 'Admin',
+            'last_name' => 'ClassGo',
+            'slug' => 'admin-classgo',
+            'verified_at' => now()
+        ]);
 
         $admin->assignRole('admin');
 
+        // Crear grupos de materias
         SubjectGroup::truncate();
         Subject::truncate();
 
@@ -90,8 +91,9 @@ class GeneralSeeder extends Seeder
             ['name' => 'Artificial Intelligence', 'subject_group_id' => $undergraduateId]
         ]);
 
+        // Crear archivos de placeholder
         Storage::disk(getStorageDisk())->putFileAs('', public_path('demo-content/placeholders/placeholder.png'), 'placeholder.png');
         Storage::disk(getStorageDisk())->putFileAs('', public_path('demo-content/placeholders/placeholder-land.png'), 'placeholder-land.png');
-        Storage::disk(getStorageDisk())->putFileAs('', public_path('demo-content/placeholders/blog-default.png'), 'blog-default.png');
     }
 }
+

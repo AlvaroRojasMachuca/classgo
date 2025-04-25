@@ -51,7 +51,6 @@ class PersonalDetailRequest extends BaseFormRequest
         if ($enableGooglePlaces != '1') {
             $rules['country']   = 'nullable|numeric';
             $rules['city']      = 'nullable|string|max:255';
-            $rules['zipcode']   = 'nullable|alpha_num|regex:/^[a-zA-Z0-9]{5,10}$/';
         } else {
             $rules['address']   = 'nullable|string|max:255';
         }

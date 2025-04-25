@@ -116,4 +116,49 @@ class IdentityVerification extends Component {
         }
     }
 
+    public function toggleStatus($userId, $newStatus)
+    {
+        $response = isDemoSite();
+        if ($response) {
+            $this->dispatch('showAlertMessage', type: 'error', title: __('general.demosite_res_title'), message: __('general.demosite_res_txt'));
+            return;
+        }
+
+        $adminExists = User::whereHas('roles', function($query) {
+            $query->where('name', 'admin');
+        })->where('id', $userId)->exists();
+
+        if ($adminExists) {
+            $this->dispatch('showAlertMessage', [
+                'type'      => 'error',
+                'title'     => __('admin/general.error_title'),
+                'message'   => __('admin/general.not_allowed')
+            ]);
+            return;
+        }
+
+        $date = now();
+        if ($newStatus == 'accepted') {
+            Profile::where('user_id', $userId)->update(['verified_at' => $date]);
+        }
+
+        $userIdentityVerification = UserIdentityVerification::where('user_id', $userId)->first();
+        $userIdentityVerification->status = $newStatus;
+        $userIdentityVerification->save();
+
+        if ($newStatus == 'accepted') {
+            dispatch(new SendNotificationJob('identityVerificationApproved', $userIdentityVerification->user, ['name' => $userIdentityVerification?->name]));
+        } else {
+            dispatch(new SendNotificationJob('identityVerificationRejected', $userIdentityVerification->user, ['name' => $userIdentityVerification?->name]));
+            $userIdentityVerification->address()->delete();
+            $userIdentityVerification->delete();
+        }
+
+        $this->dispatch('showAlertMessage', [
+            'type'      => 'success',
+            'title'     => __('general.success_title'),
+            'message'   => __('general.status_updated_successfully')
+        ]);
+    }
+
 }

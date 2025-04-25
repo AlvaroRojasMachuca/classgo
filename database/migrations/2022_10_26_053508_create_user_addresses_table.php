@@ -19,7 +19,6 @@ return new class extends Migration {
             $table->foreignId('state_id')->nullable()->constrained('country_states');
             $table->string('city')->nullable()->fulltext();
             $table->string('address')->nullable()->fulltext();
-            $table->string('zipcode')->nullable()->fulltext();
             $table->decimal('lat', 8, 6, true)->unsigned(false)->default(0);
             $table->decimal('long', 9, 6, true)->unsigned(false)->default(0);
             $table->timestamps();
@@ -33,6 +32,6 @@ return new class extends Migration {
      * @return void
      */
     public function down() {
-        Schema::dropIfExists('user_addresses');
+        Schema::dropIfExists('addresses');
     }
 };

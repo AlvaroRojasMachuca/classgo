@@ -20,6 +20,69 @@
             <link rel="stylesheet" type="text/css" href="{{ asset('css/rtl.css') }}?v={{ time() }}">
         @endif
         @stack('styles')
+        <style>
+            /* Select2 Custom Styles - Alineación Vertical */
+            .select2-container--default .select2-selection--single {
+                height: 48px; /* Mantener altura consistente */
+                border: 1px solid #eee;
+                border-radius: 4px;
+                background-color: #fff;
+                display: flex; /* Usar flexbox para centrar */
+                align-items: center; /* Centrar verticalmente */
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__rendered {
+                line-height: normal; /* Resetear line-height para que no interfiera con flex */
+                padding-left: 15px;
+                 padding-right: 25px; /* Espacio para la flecha */
+                color: #1C1C1C;
+                 width: 100%; /* Asegurar que ocupe el espacio */
+            }
+
+            .select2-container--default .select2-selection--single .select2-selection__arrow {
+                 height: 100%; /* Que la flecha ocupe toda la altura */
+                 position: absolute;
+                 top: 0;
+                 right: 10px;
+                 width: 20px;
+                 display: flex; /* Centrar el icono de la flecha */
+                 align-items: center;
+                 justify-content: center;
+            }
+            
+            /* Ajustar icono de la flecha si es necesario (esto depende del icono específico) */
+            .select2-container--default .select2-selection--single .select2-selection__arrow b {
+                 margin-top: 0; /* Resetear margen si lo tenía */
+            }
+
+            /* --- Estilos anteriores sin cambios --- */
+            .select2-container--default .select2-search--dropdown .select2-search__field {
+                border: 1px solid #eee;
+                border-radius: 4px;
+                padding: 8px;
+            }
+            .select2-dropdown {
+                border: 1px solid #eee;
+                border-radius: 4px;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .select2-results__option {
+                padding: 8px 15px;
+            }
+            .select2-container--default .select2-results__option--highlighted[aria-selected] {
+                background-color: #0d6efd; /* O el color primario de tu tema */
+                color: white;
+            }
+            .select2-container--default .select2-selection--single .select2-selection__placeholder {
+                color: #6c757d;
+            }
+            .select2-container--default .select2-search--dropdown {
+                padding: 10px;
+            }
+            .select2-container--default .select2-results__option[aria-selected=true] {
+                background-color: #e9ecef;
+            }
+        </style>
         @livewire('livewire-ui-spotlight')
         @livewireStyles()
     </head>
@@ -64,9 +127,20 @@
         <x-popups />
         @livewireScripts()
         <script src="{{ asset('js/jquery.min.js') }}"></script>
-        <script defer src="{{ asset('js/bootstrap.min.js') }}"></script>
-        <script defer src="{{ asset('js/select2.min.js') }}"></script>
-        <script defer src="{{ asset('js/main.js') }}"></script>
+        <script src="{{ asset('js/select2.min.js') }}"></script>
+        <script src="{{ asset('js/bootstrap.min.js') }}"></script>
+        <script src="{{ asset('js/main.js') }}"></script>
+        <script>
+            $(document).ready(function() {
+                // Inicializar Select2 en todos los elementos con la clase am-select2
+                $('.am-select2').select2();
+                
+                // Reinicializar Select2 cuando Livewire actualice el DOM
+                Livewire.on('initSelect2', params => {
+                    $(params.target).select2();
+                });
+            });
+        </script>
         @stack('scripts')
         @if(showAIWriter())
             <x-open_ai />

@@ -17,7 +17,6 @@ class Address extends Model {
         'country_id',
         'state_id',
         'city',
-        'zipcode',
         'address',
         'lat',
         'lang',

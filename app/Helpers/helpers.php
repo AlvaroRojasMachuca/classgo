@@ -560,8 +560,11 @@ if (!function_exists('getLangFlag')) {
 if (!function_exists('getTranslatedLanguages')) {
     function getTranslatedLanguages($langCode = null)
     {
-        $ltu_languages = [];
-        $languages = DB::table('ltu_languages')->join('ltu_translations', 'ltu_languages.id', '=', 'ltu_translations.language_id')->get();
+        $languages_list = [];
+        $languages = DB::table('languages')
+            ->where('status', 'active')
+            ->whereNotNull('code')
+            ->get(['name', 'code']);
 
         if (!empty($langCode)) {
             return Cache::rememberForever('getTranslatedLanguages-' . $langCode, function () use ($langCode, $languages) {
@@ -571,12 +574,12 @@ if (!function_exists('getTranslatedLanguages')) {
 
         if ($languages->isNotEmpty()) {
             foreach ($languages as $single) {
-                $ltu_languages[$single->code] = ucfirst($single->code);
+                $languages_list[$single->code] = ucfirst($single->name);
             }
         } else {
-            $ltu_languages['en'] = 'En';
+            $languages_list['en'] = 'English';
         }
-        return $ltu_languages;
+        return $languages_list;
     }
 }
 

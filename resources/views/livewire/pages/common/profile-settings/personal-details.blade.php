@@ -1,4 +1,3 @@
-
 <div class="am-profile-setting" wire:init="loadData" wire:key="@this">
     @slot('title')
         {{ __('profile.personal_details') }}
@@ -90,9 +89,9 @@
                                     <x-input-error field_name="form.address" />
                                 </span>
                             @else
-                                <div class="form-group-half @error('form.country') am-invalid @enderror">
+                                <div class="form-group-half @error('form.country') am-invalid @enderror" wire:ignore>
                                     <x-input-label for="country" :value="__('profile.country')" />
-                                    <span class="am-select" wire:ignore>
+                                    <span class="am-select" >
                                         <select class="am-select2" data-componentid="@this" data-live="true" data-searchable="true" id="user_country" data-wiremodel="form.country">
                                             <option value="">{{ __('profile.select_a_country') }}</option>
                                             @foreach ($countries as $country)
@@ -102,47 +101,57 @@
                                     </span>
                                     <x-input-error field_name="form.country" />
                                 </div>
-                                @if(!empty($form->country) && $states?->isNotEmpty())
-                                    <div class="form-group-half @error('form.state') am-invalid @enderror">
-                                        <x-input-label for="country_state" :value="__('profile.state')" />
+                                @if($hasStates)
+                                    <div class="form-group-half @error('form.state') am-invalid @enderror" 
+                                         wire:key="state-field-{{ $form->country ?? 'none' }}" 
+                                         x-data="{}"
+                                         x-init="
+                                            $nextTick(() => {
+                                                initializeStateSelect();
+                                            });"
+                                         wire:ignore>
+                                        <x-input-label for="state" :value="__('profile.state')" />
                                         <span class="am-select">
-                                            <select data-componentid="@this" class="am-select2" data-searchable="true" id="country_state" data-wiremodel="form.state">
+                                            <select class="am-select2" 
+                                                    data-searchable="true" 
+                                                    id="country_state" 
+                                                    name="state"
+                                                    data-placeholder="{{ __('profile.select_a_state') }}"
+                                                    data-componentid="@this"
+                                                    data-wiremodel="form.state">
                                                 <option value="">{{ __('profile.select_a_state') }}</option>
-                                                @foreach ($states as $state)
-                                                    <option  value="{{ $state->id }}" {{ $state->id == $form->state ? 'selected' : '' }} >{{ $state->name }}</option>
-                                                @endforeach
+                                                @if(!empty($states))
+                                                    @foreach ($states as $state)
+                                                        <option value="{{ $state->id }}" {{ $state->id == $form->state ? 'selected' : '' }}>{{ $state->name }}</option>
+                                                    @endforeach
+                                                @endif
                                             </select>
                                         </span>
                                         <x-input-error field_name="form.state" />
                                     </div>
                                 @endif
-                                    <div class="form-group-half @error('form.city') am-invalid @enderror">
+                                <div @class(['form-group-half', 'form-group-full-width' => !$hasStates, 'am-invalid' => $errors->has('form.city')])>
                                         <x-input-label for="city" :value="__('profile.city')" />
                                         <x-text-input wire:model="form.city" placeholder="{{ __('profile.city_placeholder') }}" type="text"  autofocus autocomplete="name" />
                                         <x-input-error field_name="form.city" />
-                                    </div>
-                                <div class="form-group-half @error('form.zipcode') am-invalid @enderror">
-                                    <x-input-label for="Zip" :value="__('profile.zipcode')" />
-                                    <x-text-input wire:model="form.zipcode" placeholder="{{ __('profile.zipcode_placeholder') }}" type="text"  autofocus autocomplete="name" />
-                                    <x-input-error field_name="form.zipcode" />
                                 </div>
                             @endif
                         </div>
                     </div>
-                    <div class="form-group @error('form.native_language') am-invalid @enderror">
-                        <x-input-label for="language" class="am-important" :value="__('profile.native_language')" />
-                        <div class="form-group-two-wrap am-nativelang">
-                            <span class="am-select" wire:ignore>
-                                <select data-componentid="@this" class="am-select2" data-searchable="true" id="native_language" data-wiremodel="form.native_language">
-                                    <option value="">{{ __('profile.select_a_native_language') }}</option>
-                                    @foreach ($languages as $language)
-                                        <option  value="{{ $language }}" {{ $language == $form->native_language ? 'selected' : '' }} >{{ $language }}</option>
-                                    @endforeach
-                                </select>
-                            </span>
-                            <x-input-error field_name="form.native_language" />
+                        <div class="form-group @error('form.native_language') am-invalid @enderror">
+                            <x-input-label for="language" class="am-important" :value="__('profile.native_language')" />
+                            <div class="form-group-two-wrap am-nativelang">
+                                <span class="am-select" wire:ignore>
+                                    <select data-componentid="@this" class="am-select2" data-searchable="true" id="native_language" data-wiremodel="form.native_language">
+                                        <option value="">{{ __('profile.select_a_native_language') }}</option>
+                                        @foreach ($languages as $language)
+                                            <option  value="{{ $language }}" {{ $language == $form->native_language ? 'selected' : '' }} >{{ $language }}</option>
+                                        @endforeach
+                                    </select>
+                                </span>
+                                <x-input-error field_name="form.native_language" />
+                            </div>
                         </div>
-                    </div>
                     <div class="form-group am-knowlanguages @error('form.user_languages') am-invalid @enderror">
                         <x-input-label for="Languages" class="am-important" :value="__('profile.language')" />
                         <div class="form-group-two-wrap am-nativelang">
@@ -344,11 +353,6 @@
     ])
 @endpush
 @push('scripts')
-@if($enableGooglePlaces == '1')
-    <script async src="https://maps.googleapis.com/maps/api/js?key={{ $googleApiKey }}&libraries=places&loading=async&callback=initializePlaceApi"></script>
-@endif
-@endpush
-@push('scripts')
     <script defer src="{{ asset('js/croppie.min.js')}}"></script>
     <script defer src="{{ asset('js/venobox.min.js')}}"></script>
     <script defer src="{{ asset('summernote/summernote-lite.min.js')}}"></script>
@@ -388,154 +392,260 @@
     </script>
    @endif
     <script type="text/javascript" data-navigate-once>
-        var image_crop = '';
-        var image_name = '';
-        var component = '';
-        var venoBox = '';
-        document.addEventListener('livewire:navigated', function() {
-            component = @this;
-        });
-        document.addEventListener('livewire:initialized', function() {
-            Livewire.on('file-dropped', (event) => {
-                image_crop = image_name = '';
-                if (event.dataTransfer.files.length > 0) {
-                    const files = event.dataTransfer.files;
-                    image_name = files[0].name;
-                    let fileExt         =  files[0].name.split('.').pop();
-                        fileExt         = fileExt ? fileExt.toLowerCase() : '';
-                    let fileSize        = files[0].size/1024;
-                    let allowFileSize   = Number("{{$allowImageSize}}")*1024;
-                    let allowFileExt    = @json($allowImgFileExt);
-
-                    if( allowFileExt.includes(fileExt) && fileSize <= allowFileSize){
-                        var reader,file,url;
-                        if(!image_crop){
-                            jQuery('#crop_img_area').croppie('destroy');
-                            jQuery('#cropedImage').modal('show');
-                            jQuery('#crop_img_area .preloader-outer').css({
-                                display: 'block',
-                                position: 'absolute',
-                                background: 'rgb(255 255 255 / 98%)'
-                            });
-                            image_crop = jQuery('#crop_img_area').croppie({
-                                viewport: {
-                                    width: 300,
-                                    height: 300,
-                                    type:'square'
-                                },
-                                boundary:{
-                                    width: 500,
-                                    height: 300
+        const livewireComponentId = "{{ $this->getId() }}";
+        let livewireComponent = null;
+        let stateWatcherInterval = null;
+        
+        // Función para inicializar cualquier select con Select2
+        function initializeSingleSelect(selector, options, livewireModel, isMultiple = false) {
+            const element = $(selector);
+            if (element.length) {
+                // Destruir instancia existente para evitar duplicados
+                if (element.data('select2')) { element.select2('destroy'); }
+                
+                try {
+                    element.select2(options).on('select2:select select2:unselect', function(e) {
+                        if(livewireComponent) {
+                            const value = isMultiple ? $(this).val() : (e.type === 'select2:unselect' ? null : $(this).val());
+                            livewireComponent.set(livewireModel, value);
+                            if (selector === '#user_languages') { populateLanguageList(); }
                                 }
                             });
-                        }
-
-                        if (files && files.length > 0) {
-                            file = files[0];
-
-                            var reader = new FileReader();
-
-                            reader.onload = e => {
-                                setTimeout(() => {
-                                    image_crop.croppie('bind', {
-                                        url: e.target.result
-                                    });
-                                    setTimeout(() => {
-                                        jQuery('#crop_img_area .preloader-outer').css({ display: 'none'});
-                                    }, 100);
-                                }, 500);
-
-                            }
-                            reader.readAsDataURL(file);
+                    console.log(`Select2 Init: ${selector} SUCCESS.`);
+                    return true;
+                } catch (error) {
+                    console.error(`Select2 Init Error ${selector}:`, error);
                         }
                     } else {
-                        let error_message = '';
-                        if(!allowFileExt.includes(fileExt)){
-                            error_message = "{{ __('validation.invalid_file_type', ['file_types' => join(',', array_map(function($ext){return('.'.$ext);},$allowImgFileExt)) ])}}";
-                        }
-                        else if(fileSize >= allowFileSize){
-                            error_message = "{{ __('validation.max_file_size_err', [ 'file_size' => $allowImageSize.'MB' ])}}";
-                        }
-                        Alpine.nextTick(() => {
-                            $(document).find('.tk-draganddrop').removeClass('am-uploading');
-                        });
-                        showAlert({
-                            message     : error_message,
-                            type        : 'error',
-                            title       : "{{__('general.error_title')}}" ,
-                            autoclose   : 1000,
-                            redirectUrl : ''
-                        });
+                console.log(`Select2 Init: ${selector} element NOT FOUND.`);
+            }
+            return false;
+        }
+        
+        // Inicializa todos los selectores
+        function initializeAllSelects() {
+            if (!livewireComponent) { 
+                try { 
+                    livewireComponent = window.Livewire.find(livewireComponentId); 
+                } catch(e) { 
+                    console.error('Cannot find Livewire component:', e);
+                    return; 
+                }
+                if (!livewireComponent) { 
+                    console.warn('Component instance missing.'); 
+                    return; 
+                }
+            }
+            
+            console.log('Initializing all select elements...');
+            
+            // País (AJAX)
+            initializeSingleSelect('#user_country', {
+                dropdownParent: $('#user_country').closest('.form-group-half'), 
+                width: '100%', 
+                language: { 
+                    noResults: function() { return "{{ __('general.no_results_found') }}"; }, 
+                    searching: function() { return "{{ __('general.searching') }}..."; } 
+                }, 
+                placeholder: "{{ __('profile.select_a_country') }}", 
+                allowClear: true, 
+                minimumInputLength: 0,
+                ajax: { 
+                     transport: function (params, success, failure) {
+                        const searchTerm = params.data.term || '';
+                        if (!livewireComponent) { failure(); return; }
+                        livewireComponent.call('searchCountries', searchTerm)
+                            .then(results => success({ results: Array.isArray(results) ? results : [] }))
+                            .catch(failure);
+                    },
+                    delay: 250, 
+                    cache: true, 
+                    processResults: function (data) { return data; } 
+                }
+            }, 'form.country');
+
+            // Idioma Nativo
+            initializeSingleSelect('#native_language', {
+                dropdownParent: $('#native_language').closest('.am-nativelang'), 
+                width: '100%', 
+                placeholder: "{{ __('profile.select_a_native_language') }}", 
+                allowClear: true
+            }, 'form.native_language');
+            
+            // Idiomas Conocidos (Multiple)
+            initializeSingleSelect('#user_languages', {
+                dropdownParent: $('#user_languages').closest('.am-nativelang'), 
+                width: '100%', 
+                multiple: true, 
+                placeholder: "{{ __('profile.language_placeholder') }}", 
+                allowClear: true
+            }, 'form.user_languages', true);
+            
+            // Inicializar estado y comenzar el watcher
+            initializeStateSelect();
+            startStateSelectWatcher();
+        }
+        
+        // Función específica para el selector de estado
+        function initializeStateSelect() {
+            if (!$('#country_state').length) return false;
+            
+            const $select = $('#country_state');
+            const currentValue = $select.val();
+            
+            // Si ya está inicializado y el contenedor existe, no reinicializar
+            if ($select.data('select2') && $select.next('.select2-container').length) {
+                return true;
+            }
+            
+            try {
+                console.log('State Select: Initializing');
+                
+                $select.select2({
+                    width: '100%',
+                    minimumResultsForSearch: 1,
+                    dropdownParent: $select.closest('.form-group-half'),
+                    placeholder: "{{ __('profile.select_a_state') }}",
+                    allowClear: true
+                }).on('select2:select select2:unselect', function(e) {
+                    const value = e.type === 'select2:unselect' ? '' : $(this).val();
+                    if (livewireComponent) {
+                        console.log('Setting state value:', value);
+                        livewireComponent.set('form.state', value);
+                        
+                        // Mantener el valor visual seleccionado
+                        setTimeout(() => {
+                            if (value) {
+                                const option = $select.find(`option[value="${value}"]`);
+                                if (option.length) {
+                                    $select.val(value).trigger('change');
+                                }
+                            }
+                        }, 50);
+                    }
+                });
+
+                // Restaurar el valor seleccionado si existe
+                if (currentValue) {
+                    const option = $select.find(`option[value="${currentValue}"]`);
+                    if (option.length) {
+                        $select.val(currentValue).trigger('change');
                     }
                 }
-            });
 
-            $(document).on("click", ".am-closeimagepopup", function(e){
-                jQuery('#cropedImage').modal('hide');
-                setTimeout(() => {
-                    $(document).find('.tk-draganddrop').removeClass('am-uploading');
-                    $('#at_upload_files').val('');
-                    image_crop.croppie('destroy');
-                }, 100);
-            });
+                return true;
+            } catch (error) {
+                console.error('State Select: Error initializing', error);
+                return false;
+            }
+        }
 
-            $(document).on("click", "#croppedImage", function(e){
-                e.preventDefault();
-                image_crop.croppie('result', {type: 'base64', format: 'jpg'}).then(function(base64) {
-                    component.set("form.image", base64, false);
-                    component.set("form.isBase64", true, false);
-                    component.set("form.imageName", image_name);
+        // Watcher para el selector de estado
+        function startStateSelectWatcher() {
+            // Limpiar intervalo existente si hay uno
+            if (stateWatcherInterval) {
+                clearInterval(stateWatcherInterval);
+                stateWatcherInterval = null;
+            }
+            
+            // Configurar un intervalo para verificar periódicamente
+            stateWatcherInterval = setInterval(() => {
+                if ($('#country_state').length) {
+                    const success = initializeStateSelect();
+                    
+                    // Si la inicialización fue exitosa Y el contenedor visual existe, podemos reducir la frecuencia
+                    if (success && $('#country_state').next('.select2-container').length) {
+                        console.log('State Select: Successfully initialized and container exists');
+                        clearInterval(stateWatcherInterval);
+                        
+                        // Cambiamos a una verificación menos frecuente
+                        stateWatcherInterval = setInterval(() => {
+                            if ($('#country_state').length && !$('#country_state').next('.select2-container').length) {
+                                console.log('State Select: Container disappeared, reinitializing');
+                                initializeStateSelect();
+                            }
+                        }, 2000);
+                    }
+                }
+            }, 500);
+            
+            // Por seguridad, detener después de 30 segundos
+            setTimeout(() => {
+                if (stateWatcherInterval) {
+                    clearInterval(stateWatcherInterval);
+                    stateWatcherInterval = null;
+                    console.log('State Select: Watcher timed out after 30 seconds');
+                }
+            }, 30000);
+        }
+        
+        function populateLanguageList() { 
+             var selectedLanguages = $('#user_languages').select2('data');
+                var html = '';
+                if (selectedLanguages.length > 0) {
+                    html = '<ul class="tu-labels">';
+                    selectedLanguages.forEach(function(lang) {
+                        html += '<li><span>' + lang.text + ' <a href="javascript:void(0);" class="removeSelectedLang" data-id="' + lang.id + '"><i class="am-icon-multiply-02"></i></a></span></li>';
+                    });
+                    html += '</ul>';
+                }
+                $('.languageList').html(html);
+        }
+
+        // --- Hooks de Livewire --- 
+        
+        document.addEventListener('livewire:init', ({ component }) => {
+            if (component && component.id === livewireComponentId) {
+                livewireComponent = component;
+                console.log('Livewire component instance captured on init');
+                requestAnimationFrame(initializeAllSelects);
+            }
+        });
+        
+        document.addEventListener('livewire:update', ({ component }) => {
+            if (component && component.id === livewireComponentId) {
+                livewireComponent = component;
+                
+                // Verificar si cualquiera de los selects necesita ser reinicializado
+                const selectors = ['#user_country', '#native_language', '#user_languages', '#country_state'];
+                selectors.forEach(selector => {
+                    if ($(selector).length && !$(selector).next('.select2-container').length) {
+                        console.log(`${selector}: Container missing after update, reinitializing`);
+                        if (selector === '#country_state') {
+                            initializeStateSelect();
+                        } else {
+                            initializeAllSelects();
+                            return; // Salir del bucle
+                        }
+                    }
                 });
-                jQuery('#cropedImage').modal('hide');
-                setTimeout(() => {
-                    image_crop.croppie('destroy');
-                }, 100);
-            });
+            }
+        });
+        
+        // Listener para eliminar lenguajes
+        $(document).on("click", ".removeSelectedLang", function(e) { 
+            e.preventDefault();
+            var id = $(this).data('id');
+            var values = $('#user_languages').val();
+            values = values.filter(function(value) { return value != id; });
+            $('#user_languages').val(values).trigger('change');
+            if(livewireComponent) {
+                livewireComponent.set('form.user_languages', values);
+            }
+        });
 
-            $(document).on('summernote.change', '#profile_desc', function(we, contents, $editable) {
-                component.set("form.description",contents, false);
-            });
-
-            document.addEventListener('profile-img-updated', (event) => {
-                $('.userImg img').attr('src', event.detail.image);
-            });
-
-            document.addEventListener('loadPageJs', (event) => {
-                component.dispatch('initSelect2', {target:'.am-select2'});
-                setTimeout(() => {
-                    @if($enableGooglePlaces == '1')
-                        initializePlaceApi()
-                    @endif
-                    $('#profile_desc').summernote('destroy');
-                    $('#profile_desc').summernote(summernoteConfigs('#profile_desc','.characters-count'));
-                    venoBox = initVenobox();
-                }, 500);
-            })
-
-            $(document).on("change", ".languages", function(e){
-                component.set('form.user_languages', $(this).select2("val"), false);
-                populateLanguageList();
-            });
-
-            $( "body" ).delegate( ".removeSelectedLang", "click", function() {
-                let id = $(this).attr('data-id');
-                var newArray = [];
-                new_data = $.grep($('.languages').select2('data'), function (value) {
-                    if(value['id'] != id)
-                        newArray.push(value['id']);
-                });
-                $('.languages').val(newArray).trigger('change');
-                populateLanguageList();
-            });
-
-            function populateLanguageList(){
-                let languages = $('.languages').select2('data');
-                var lang_html = '<ul class="tu-labels">';
-                $.each(languages,function(index,elem){
-                        lang_html += `<li><span>${elem.text} <a href="javascript:void(0);" class="removeSelectedLang" data-id="${elem.id}"><i class="am-icon-multiply-02"></i></a></span></li>`;
-                });
-                lang_html += '</ul>';
-                $('.languageList').html(lang_html);
+        // Inicializar también en el evento loadPageJs por compatibilidad
+        document.addEventListener('loadPageJs', () => {
+            console.log('loadPageJs event received');
+            if (!livewireComponent) {
+                try {
+                    livewireComponent = window.Livewire.find(livewireComponentId);
+                    if (livewireComponent) {
+                        setTimeout(initializeAllSelects, 200);
+                    }
+                } catch (e) {
+                    console.error('Error en loadPageJs:', e);
+                }
             }
         });
     </script>
